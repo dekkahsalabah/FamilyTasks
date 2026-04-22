@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🏠 مهام البيت</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07090f;--bg2:#0e1118;--bg3:#151a24;--bg4:#1c2333;
+  --gold:#f5c842;--gold2:#c8920a;--green:#22c55e;--red:#ef4444;
+  --blue:#3b82f6;--purple:#8b5cf6;--muted:#64748b;
+  --text:#e2e8f0;--text2:#94a3b8;--border:rgba(255,255,255,0.07);--r:14px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif;min-height:100vh}
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:9999}
+.spin{width:42px;height:42px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.auth-bg{min-height:100vh;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 50% 0%,#1c1400,var(--bg) 65%)}
+.auth-card{background:var(--bg3);border:1px solid rgba(245,200,66,.18);border-radius:24px;padding:36px 28px;width:100%;max-width:420px;display:flex;flex-direction:column;gap:15px;box-shadow:0 0 80px rgba(245,200,66,.06)}
+.auth-icon{font-size:52px;text-align:center}
+.auth-title{text-align:center;font-size:22px;font-weight:900;color:var(--gold)}
+.auth-sub{text-align:center;color:var(--text2);font-size:13px;line-height:1.6}
+.inp{width:100%;padding:12px 14px;background:var(--bg4);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:14px;outline:none;transition:border .2s}
+.inp:focus{border-color:var(--gold)}
+select.inp option{background:var(--bg3)}
+textarea.inp{resize:vertical;min-height:68px}
+.lbl{font-size:12px;color:var(--text2);margin-bottom:4px}
+.field{display:flex;flex-direction:column;gap:4px}
+.btn{padding:11px 18px;border:none;border-radius:10px;font-family:'Tajawal',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000}
+.btn-gold:hover{filter:brightness(1.1)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--text);color:var(--text)}
+.btn-green{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+.btn-red{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+.btn-blue{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:var(--blue)}
+.btn-full{width:100%}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+#app{display:none;flex-direction:column;min-height:100vh}
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-l{display:flex;align-items:center;gap:10px}
+.h-av{font-size:26px}
+.h-nm{font-size:14px;font-weight:800}
+.h-badge{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:700;width:fit-content;margin-top:2px}
+.badge-admin{background:rgba(245,200,66,.2);color:var(--gold)}
+.badge-child{background:rgba(34,197,94,.2);color:var(--green)}
+.hdr-title{font-size:17px;font-weight:900;color:var(--gold)}
+.hdr-r{display:flex;gap:6px}
+.hbtn{background:transparent;border:1px solid var(--border);border-radius:9px;padding:7px 11px;color:var(--text2);cursor:pointer;font-size:14px;transition:all .2s}
+.hbtn:hover{border-color:var(--gold);color:var(--gold);background:rgba(245,200,66,.07)}
+.hbtn-out{border-color:rgba(239,68,68,.3);color:var(--red)}
+.hbtn-out:hover{background:rgba(239,68,68,.1)}
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 14px}
+.nbtn{padding:12px 15px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text2);cursor:pointer;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;white-space:nowrap;transition:all .2s}
+.nbtn.active{border-bottom-color:var(--gold);color:var(--gold)}
+.page{display:none;max-width:860px;margin:0 auto;padding:18px 14px;width:100%}
+.page.active{display:block}
+.pg-title{font-size:19px;font-weight:900;margin-bottom:16px}
+.sec-title{font-size:13px;font-weight:800;color:var(--text2);margin:14px 0 9px}
+.days-bar{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.dbtn{padding:8px 15px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text2);cursor:pointer;white-space:nowrap;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:600;transition:all .2s;flex-shrink:0;position:relative}
+.dbtn.active{background:rgba(245,200,66,.1);border-color:var(--gold);color:var(--gold)}
+.dbtn.today::after{content:'•';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);color:var(--gold);font-size:10px}
+.stats-bar{display:flex;gap:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:13px 16px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.stat{display:flex;flex-direction:column;align-items:center;min-width:48px}
+.stat-n{font-size:21px;font-weight:900}
+.stat-l{font-size:10px;color:var(--muted)}
+.prog-wrap{flex:1;display:flex;align-items:center;gap:8px;min-width:110px}
+.prog-track{flex:1;height:7px;background:var(--bg4);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--green),#16a34a);border-radius:4px;transition:width .5s}
+.pct-lbl{font-size:13px;font-weight:800;color:var(--green);min-width:36px}
+.tlist{display:flex;flex-direction:column;gap:10px}
+.tcard{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:15px;transition:border-color .2s}
+.tcard.done{border-color:rgba(34,197,94,.3)}
+.tcard.pending{border-color:rgba(245,200,66,.12)}
+.tc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.tc-time{font-size:12px;color:var(--muted);font-weight:700}
+.tc-status{font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px}
+.s-done{background:rgba(34,197,94,.15);color:var(--green)}
+.s-pend{background:rgba(245,200,66,.1);color:var(--gold)}
+.tc-body{display:flex;align-items:center;gap:11px;margin-bottom:9px}
+.tc-emoji{font-size:28px;flex-shrink:0}
+.tc-name{font-size:15px;font-weight:700}
+.tc-meta{font-size:12px;color:var(--text2);margin-top:2px}
+.tc-rating{font-size:13px;color:var(--gold);margin-bottom:7px}
+.tc-note{color:var(--text2);font-size:12px}
+.tc-actions{display:flex;gap:7px;flex-wrap:wrap}
+.admin-tools{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.rpt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:11px;margin:14px 0}
+.rpt-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:15px;text-align:center}
+.rpt-child{font-size:15px;font-weight:800;margin-bottom:9px}
+.rpt-stats{display:flex;justify-content:space-around;margin-bottom:9px}
+.rpt-stat{display:flex;flex-direction:column;align-items:center}
+.rpt-n{font-size:20px;font-weight:900}
+.rpt-l{font-size:10px;color:var(--muted)}
+.week-wrap{overflow-x:auto}
+.wtbl{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;min-width:560px}
+.w-head,.w-row{display:flex;padding:9px 13px;gap:3px}
+.w-head{background:rgba(245,200,66,.07);font-weight:800;font-size:12px;color:var(--gold)}
+.w-row{border-top:1px solid var(--border);align-items:center;font-size:12px}
+.wc0{flex:1.4;font-weight:700}.wc{flex:1;text-align:center}
+.user-row{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;margin-bottom:8px}
+.user-row-l{display:flex;align-items:center;gap:10px}
+.ur-av{font-size:24px}
+.ur-name{font-size:14px;font-weight:700}
+.ur-sub{font-size:11px;color:var(--muted)}
+.s-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
+.s-card-title{font-size:14px;font-weight:800;color:var(--gold);margin-bottom:12px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:500;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--bg3);border:1px solid rgba(245,200,66,.15);border-radius:20px;padding:26px 22px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:13px;max-height:90vh;overflow-y:auto}
+.m-title{font-size:17px;font-weight:900;color:var(--gold)}
+.m-sub{font-size:13px;color:var(--text2)}
+.m-actions{display:flex;gap:9px}
+.stars-row{display:flex;justify-content:center;gap:5px}
+.star-btn{background:none;border:none;font-size:32px;cursor:pointer;transition:transform .1s;line-height:1}
+.star-btn:hover{transform:scale(1.2)}
+#toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);padding:11px 22px;border-radius:11px;color:#fff;font-weight:700;font-size:14px;z-index:9000;display:none;white-space:nowrap;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.empty{text-align:center;padding:48px 0;color:var(--muted);font-size:15px}
+.divider{border:none;border-top:1px solid var(--border);margin:4px 0}
+.warn-box{background:rgba(245,200,66,.07);border:1px solid rgba(245,200,66,.2);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--gold);line-height:1.7}
+@media(max-width:480px){.hdr-title{font-size:14px}.auth-card{padding:26px 18px}}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div style="font-size:50px">🏠</div>
+  <div class="spin"></div>
+  <div style="color:var(--text2);font-size:13px">جاري التحميل...</div>
+</div>
+
+<!-- SETUP -->
+<div class="auth-bg" id="setup-page">
+  <div class="auth-card">
+    <div class="auth-icon">🏠</div>
+    <div class="auth-title">إعداد النظام لأول مرة</div>
+    <div class="auth-sub">مرحباً! أنشئ حساب المدير الأول للنظام</div>
+    <div class="field"><div class="lbl">اسم الأب (المدير الأول)</div><input class="inp" id="su-n1" placeholder="مثال: علي"/></div>
+    <div class="field"><div class="lbl">اسم المستخدم</div><input class="inp" id="su-u1" placeholder="مثال: ali" dir="ltr"/></div>
+    <div class="field"><div class="lbl">كلمة المرور</div><input class="inp" type="password" id="su-p1" placeholder="6 أحرف على الأقل"/></div>
+    <hr class="divider"/>
+    <div class="field"><div class="lbl">اسم الأم — اختياري</div><input class="inp" id="su-n2" placeholder="مثال: سعدية"/></div>
+    <div class="field"><div class="lbl">اسم المستخدم</div><input class="inp" id="su-u2" placeholder="مثال: saadia" dir="ltr"/></div>
+    <div class="field"><div class="lbl">كلمة المرور</div><input class="inp" type="password" id="su-p2" placeholder="اختياري"/></div>
+    <div id="su-err" style="color:var(--red);font-size:13px;display:none"></div>
+    <button class="btn btn-gold btn-full" id="su-btn">🚀 تهيئة النظام</button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="auth-bg" id="login-page">
+  <div class="auth-card">
+    <div class="auth-icon">🏠</div>
+    <div class="auth-title">مهام البيت</div>
+    <div class="auth-sub">سجّل دخولك للمتابعة</div>
+    <div class="field"><div class="lbl">اسم المستخدم</div><input class="inp" id="l-u" dir="ltr" placeholder="username"/></div>
+    <div class="field"><div class="lbl">كلمة المرور</div><input class="inp" type="password" id="l-p" placeholder="••••••"/></div>
+    <div id="l-err" style="color:var(--red);font-size:13px;display:none"></div>
+    <button class="btn btn-gold btn-full" id="l-btn">دخول</button>
+    <div class="sec-title" style="text-align:center;margin:2px 0">— أو اختر —</div>
+    <div id="qbtns" style="display:flex;flex-wrap:wrap;gap:7px;justify-content:center"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="hdr">
+    <div class="hdr-l">
+      <div class="h-av" id="hav">👤</div>
+      <div><div class="h-nm" id="hnm">—</div><div class="h-badge" id="hbadge">—</div></div>
+    </div>
+    <div class="hdr-title">🏡 مهام البيت</div>
+    <div class="hdr-r">
+      <button class="hbtn" id="btn-pw">🔑</button>
+      <button class="hbtn hbtn-out" id="btn-out">خروج</button>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nbtn active" data-pg="home">📋 الجدول</button>
+    <button class="nbtn" data-pg="report" id="nav-report">📊 التقارير</button>
+    <button class="nbtn" data-pg="users" id="nav-users">👥 المستخدمون</button>
+    <button class="nbtn" data-pg="settings" id="nav-settings">⚙️ الإعدادات</button>
+  </div>
+  <div class="page active" id="page-home">
+    <div class="days-bar" id="days-bar"></div>
+    <div class="admin-tools" id="adm-tools"></div>
+    <div class="stats-bar" id="stats-bar"></div>
+    <div class="tlist" id="task-list"></div>
+  </div>
+  <div class="page" id="page-report">
+    <div class="pg-title">📊 تقارير الأداء</div>
+    <div class="days-bar" id="rpt-days"></div>
+    <div class="rpt-grid" id="rpt-grid"></div>
+    <div class="sec-title">ملخص الأسبوع</div>
+    <div class="week-wrap"><div class="wtbl" id="wtbl"></div></div>
+  </div>
+  <div class="page" id="page-users">
+    <div class="pg-title">👥 إدارة المستخدمين</div>
+    <button class="btn btn-gold" style="margin-bottom:16px" onclick="openAddUser()">➕ إضافة مستخدم</button>
+    <div id="users-list"></div>
+  </div>
+  <div class="page" id="page-settings">
+    <div class="pg-title">⚙️ الإعدادات</div>
+    <div class="s-card">
+      <div class="s-card-title">🔑 تغيير كلمة مروري</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input class="inp" id="s-p1" type="password" placeholder="كلمة المرور الجديدة"/>
+        <input class="inp" id="s-p2" type="password" placeholder="تأكيد كلمة المرور"/>
+        <div id="s-perr" style="color:var(--red);font-size:13px;display:none"></div>
+        <button class="btn btn-gold" id="s-pbtn">حفظ</button>
+      </div>
+    </div>
+    <div class="warn-box">⚠️ لتغيير كلمة مرور أحد الأبناء، روح لصفحة المستخدمين واضغط ✏️</div>
+  </div>
+</div>
+
+<!-- MODAL: تقييم -->
+<div class="overlay" id="m-rate">
+  <div class="modal">
+    <div class="m-title">⭐ تقييم المهمة</div>
+    <div class="m-sub" id="mr-sub"></div>
+    <div class="stars-row" id="stars-row"></div>
+    <div style="text-align:center;font-size:13px;color:var(--text2)" id="stars-lbl">3 / 5</div>
+    <div class="field"><div class="lbl">ملاحظة (اختياري)</div><textarea class="inp" id="mr-note"></textarea></div>
+    <div class="m-actions">
+      <button class="btn btn-gold" style="flex:1" id="mr-save">حفظ</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="closeM('m-rate')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: مهمة إضافية -->
+<div class="overlay" id="m-extra">
+  <div class="modal">
+    <div class="m-title">⭐ المهمة الإضافية</div>
+    <div class="m-sub" id="me-sub"></div>
+    <div class="field"><div class="lbl">اختر الطفل</div><select class="inp" id="me-child"></select></div>
+    <div class="field"><div class="lbl">وصف المهمة</div><input class="inp" id="me-lbl" placeholder="مثال: ترتيب غرفتك"/></div>
+    <div class="m-actions">
+      <button class="btn btn-gold" style="flex:1" id="me-save">حفظ</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="closeM('m-extra')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: مستخدم -->
+<div class="overlay" id="m-user">
+  <div class="modal">
+    <div class="m-title" id="mu-title">➕ إضافة مستخدم</div>
+    <div class="field"><div class="lbl">الاسم الكامل</div><input class="inp" id="mu-name" placeholder="مثال: شهد"/></div>
+    <div class="field"><div class="lbl">اسم المستخدم</div><input class="inp" id="mu-user" dir="ltr" placeholder="shahad"/></div>
+    <div class="field"><div class="lbl">الدور</div>
+      <select class="inp" id="mu-role" onchange="toggleChildField()">
+        <option value="child">طفل</option>
+        <option value="admin">مدير</option>
+      </select>
+    </div>
+    <div class="field" id="mu-cf"><div class="lbl">اسم الطفل في الجدول</div><input class="inp" id="mu-child" placeholder="مثال: شهد"/></div>
+    <div class="field"><div class="lbl">الرمز التعبيري</div><input class="inp" id="mu-av" placeholder="👧" style="font-size:20px"/></div>
+    <div class="field" id="mu-pf"><div class="lbl">كلمة المرور</div><input class="inp" type="password" id="mu-pw"/></div>
+    <div class="field" id="mu-p2f" style="display:none"><div class="lbl">كلمة مرور جديدة (فارغ = لا تغيير)</div><input class="inp" type="password" id="mu-pw2"/></div>
+    <div id="mu-err" style="color:var(--red);font-size:13px;display:none"></div>
+    <div class="m-actions">
+      <button class="btn btn-gold" style="flex:1" id="mu-save">حفظ</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="closeM('m-user')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: كلمة المرور -->
+<div class="overlay" id="m-pw">
+  <div class="modal">
+    <div class="m-title">🔑 تغيير كلمة المرور</div>
+    <input class="inp" id="mpw1" type="password" placeholder="كلمة المرور الجديدة"/>
+    <input class="inp" id="mpw2" type="password" placeholder="تأكيد"/>
+    <div id="mpw-err" style="color:var(--red);font-size:13px;display:none"></div>
+    <div class="m-actions">
+      <button class="btn btn-gold" style="flex:1" id="mpw-save">حفظ</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="closeM('m-pw')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore,doc,setDoc,getDoc,onSnapshot,collection,getDocs,deleteDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const db = getFirestore(initializeApp({
+  apiKey:"AIzaSyDTgrkdSlOLsCNB99er61ByQJPeym-h2bQ",
+  authDomain:"familytasks-eb38f.firebaseapp.com",
+  projectId:"familytasks-eb38f",
+  storageBucket:"familytasks-eb38f.firebasestorage.app",
+  messagingSenderId:"86266245632",
+  appId:"1:86266245632:web:52d64606d954a78bf75ee5"
+}));
+
+const DAYS=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+const TASKS=[
+  {id:"kitchen",lbl:"🍽️ تنظيف المطبخ"},
+  {id:"salon",lbl:"🛋️ تنظيف الصالة"},
+  {id:"yard",lbl:"🌿 تنظيف الحوش"},
+  {id:"bathroom",lbl:"🚿 تنظيف الحمامات"},
+  {id:"laundry",lbl:"👕 غسيل الملابس"},
+  {id:"dishes",lbl:"🍳 غسيل / حط المواعين"},
+  {id:"dishunload",lbl:"📦 تفضية غسالة المواعين"},
+  {id:"dishload",lbl:"🔄 تعبئة غسالة المواعين"},
+  {id:"joud_study",lbl:"📚 مساعدة جود في المذاكرة"},
+  {id:"extra",lbl:"⭐ مهمة إضافية",extra:true},
+];
+
+let CU=null,USERS=[],CHILDREN=[],schedule={};
+let selDay=new Date().getDay(),rptDay=new Date().getDay();
+let schedUnsub=null,ratingCtx=null,extraCtx=null,editingUser=null;
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const fmt12=(h,m)=>{const ap=h<12?"ص":"م",hh=h>12?h-12:h===12?12:h;return `${hh}:${m===0?"00":m} ${ap}`;};
+const taskById=id=>TASKS.find(t=>t.id===id)||{lbl:"مهمة",id};
+window.closeM=id=>$(id).classList.remove("open");
+const openM=id=>$(id).classList.add("open");
+
+function toast(msg,t="ok"){
+  const el=$("toast");
+  el.textContent=msg;
+  el.style.background=t==="err"?"#ef4444":t==="warn"?"#c8920a":"#22c55e";
+  el.style.color=t==="warn"?"#000":"#fff";
+  el.style.display="block";
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.style.display="none",3000);
+}
+
+async function hashPw(pw){
+  const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+// ── INIT ──
+async function init(){
+  const cfg=await getDoc(doc(db,"config","system"));
+  $("loading").style.display="none";
+  if(!cfg.exists()){
+    $("setup-page").style.display="flex";
+  } else {
+    const sess=sessionStorage.getItem("cu");
+    if(sess){ CU=JSON.parse(sess); await loadUsers(); startApp(); }
+    else { await loadUsers(); showLogin(); }
+  }
+}
+init();
+
+// ── SETUP ──
+$("su-btn").onclick=async()=>{
+  const n1=$("su-n1").value.trim(),u1=$("su-u1").value.trim().toLowerCase(),p1=$("su-p1").value;
+  const n2=$("su-n2").value.trim(),u2=$("su-u2").value.trim().toLowerCase(),p2=$("su-p2").value;
+  const err=$("su-err"); err.style.display="none";
+  if(!n1||!u1||p1.length<6){err.textContent="اسم الأب واسم المستخدم وكلمة المرور (6 أحرف) مطلوبة";err.style.display="block";return;}
+  const btn=$("su-btn"); btn.disabled=true; btn.textContent="جاري الإعداد...";
+  try{
+    await setDoc(doc(db,"users",u1),{username:u1,name:n1,role:"admin",avatar:"👨",hash:await hashPw(p1)});
+    if(n2&&u2&&p2.length>=6)
+      await setDoc(doc(db,"users",u2),{username:u2,name:n2,role:"admin",avatar:"👩",hash:await hashPw(p2)});
+    await setDoc(doc(db,"config","system"),{setup:true,createdAt:new Date().toISOString()});
+    const s={}; for(let d=0;d<7;d++) s[d]=[];
+    await setDoc(doc(db,"schedule","week"),s);
+    $("setup-page").style.display="none";
+    const uData=(await getDoc(doc(db,"users",u1))).data();
+    CU={...uData}; delete CU.hash;
+    sessionStorage.setItem("cu",JSON.stringify(CU));
+    await loadUsers(); startApp();
+    toast("🎉 تم إعداد النظام بنجاح!");
+  }catch(e){err.textContent="خطأ: "+e.message;err.style.display="block";}
+  btn.disabled=false; btn.textContent="🚀 تهيئة النظام";
+};
+
+// ── LOGIN ──
+async function loadUsers(){
+  const snap=await getDocs(collection(db,"users"));
+  USERS=[]; snap.forEach(d=>USERS.push(d.data()));
+  CHILDREN=USERS.filter(u=>u.role==="child"&&u.childName).map(u=>u.childName);
+}
+
+function showLogin(){
+  $("app").style.display="none";
+  $("login-page").style.display="flex";
+  $("qbtns").innerHTML=USERS.map(u=>`
+    <button style="background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:8px 12px;cursor:pointer;color:var(--text);font-family:Tajawal,sans-serif;font-size:12px;font-weight:700;transition:border-color .2s"
+      onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'"
+      onclick="$('l-u').value='${u.username}';$('l-p').value=''">
+      ${u.avatar||"👤"} ${esc(u.name)}
+    </button>`).join("");
+}
+window.$=$; // expose for inline onclick
+
+$("l-btn").onclick=async()=>{
+  const u=$("l-u").value.trim().toLowerCase(),p=$("l-p").value;
+  const err=$("l-err"); err.style.display="none";
+  const btn=$("l-btn"); btn.disabled=true; btn.textContent="جاري الدخول...";
+  try{
+    const snap=await getDoc(doc(db,"users",u));
+    if(!snap.exists()) throw new Error();
+    const data=snap.data();
+    if(await hashPw(p)!==data.hash) throw new Error();
+    CU={...data}; delete CU.hash;
+    sessionStorage.setItem("cu",JSON.stringify(CU));
+    $("login-page").style.display="none";
+    await loadUsers(); startApp();
+  }catch{err.textContent="اسم المستخدم أو كلمة المرور غلط";err.style.display="block";}
+  btn.disabled=false; btn.textContent="دخول";
+};
+$("l-p").addEventListener("keydown",e=>e.key==="Enter"&&$("l-btn").click());
+
+// ── LOGOUT ──
+$("btn-out").onclick=()=>{
+  sessionStorage.removeItem("cu"); CU=null;
+  if(schedUnsub){schedUnsub();schedUnsub=null;}
+  $("app").style.display="none";
+  showLogin();
+};
+
+// ── START APP ──
+function startApp(){
+  $("app").style.display="flex";
+  $("hav").textContent=CU.avatar||"👤";
+  $("hnm").textContent=CU.name;
+  const b=$("hbadge");
+  b.textContent=CU.role==="admin"?"مدير":"طفل";
+  b.className="h-badge "+(CU.role==="admin"?"badge-admin":"badge-child");
+  ["nav-report","nav-users","nav-settings"].forEach(id=>$(id).style.display=CU.role==="admin"?"":"none");
+  buildDays(); buildRptDays(); renderUsers();
+  if(schedUnsub) schedUnsub();
+  schedUnsub=onSnapshot(doc(db,"schedule","week"),snap=>{
+    schedule=snap.exists()?snap.data():{};
+    for(let d=0;d<7;d++) if(!schedule[d]) schedule[d]=[];
+    renderHome(); renderReport();
+  });
+}
+
+// ── NAV ──
+document.querySelectorAll(".nbtn").forEach(btn=>btn.onclick=()=>{
+  document.querySelectorAll(".nbtn").forEach(b=>b.classList.remove("active")); btn.classList.add("active");
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  $("page-"+btn.dataset.pg).classList.add("active");
+});
+
+// ── DAYS ──
+function buildDays(){
+  const today=new Date().getDay();
+  $("days-bar").innerHTML=DAYS.map((d,i)=>
+    `<button class="dbtn${selDay===i?" active":""}${today===i?" today":""}" onclick="selDay=${i};buildDays();renderHome()">${d}</button>`
+  ).join("");
+  $("adm-tools").innerHTML=CU.role==="admin"?
+    `<button class="btn btn-green" onclick="regenDay(${selDay})">🔄 إعادة توزيع</button>
+     <button class="btn btn-gold" onclick="openExtraM(${selDay})">⭐ مهمة إضافية</button>`:
+    "";
+}
+function buildRptDays(){
+  $("rpt-days").innerHTML=DAYS.map((d,i)=>
+    `<button class="dbtn${rptDay===i?" active":""}" onclick="rptDay=${i};buildRptDays();renderReport()">${d}</button>`
+  ).join("");
+}
+
+// ── SCHEDULE ──
+function genDay(d){
+  if(!CHILDREN.length) return [];
+  const ids=TASKS.filter(t=>!t.extra).map(t=>t.id);
+  const sh=[...ids].sort(()=>Math.random()-.5);
+  const slots=[{h:15,m:30},{h:16,m:0},{h:16,m:30},{h:17,m:0},{h:17,m:30}];
+  const entries=CHILDREN.flatMap((child,i)=>{
+    const sl=slots[i%slots.length];
+    return [0,1].map(ti=>{
+      let m2=sl.m+ti*30,h2=sl.h; if(m2>=60){m2-=60;h2++;}
+      return {id:`${d}-${child}-${ti}-${Date.now()+Math.random()}`,child,taskId:sh[(i*2+ti)%ids.length],timeH:h2,timeM:m2,status:"pending",rating:null,note:"",doneAt:null};
+    });
+  });
+  entries.push({id:`${d}-extra-${Date.now()}`,child:null,taskId:"extra",timeH:17,timeM:30,status:"pending",extraLabel:"",rating:null,note:"",doneAt:null});
+  return entries;
+}
+async function saveSched(s){schedule=s;await setDoc(doc(db,"schedule","week"),s);}
+
+// ── HOME ──
+function renderHome(){
+  const entries=(schedule[selDay]||[]).slice().sort((a,b)=>a.timeH*60+a.timeM-(b.timeH*60+b.timeM));
+  const mine=CU.role==="child"?entries.filter(e=>e.child===CU.childName):entries;
+  const valid=entries.filter(e=>e.taskId!=="extra"||e.child);
+  const done=valid.filter(e=>e.status==="done").length;
+  const pct=valid.length?Math.round(done/valid.length*100):0;
+  $("stats-bar").innerHTML=`
+    <div class="stat"><div class="stat-n">${valid.length}</div><div class="stat-l">المهام</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--green)">${done}</div><div class="stat-l">منجزة</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--gold)">${valid.length-done}</div><div class="stat-l">متبقية</div></div>
+    <div class="prog-wrap"><div class="prog-track"><div class="prog-fill" style="width:${pct}%"></div></div><div class="pct-lbl">${pct}%</div></div>`;
+  if(!mine.length){$("task-list").innerHTML=`<div class="empty">لا توجد مهام مجدولة</div>`;return;}
+  $("task-list").innerHTML=mine.map(e=>{
+    const task=taskById(e.taskId),isX=e.taskId==="extra";
+    if(isX&&!e.child&&CU.role!=="admin") return "";
+    const done=e.status==="done",emoji=task.lbl.split(" ")[0];
+    const name=isX?(e.extraLabel||"لم تُحدد بعد"):task.lbl.replace(emoji,"").trim();
+    const canDone=e.status==="pending"&&e.child&&(CU.role==="admin"||(CU.role==="child"&&CU.childName===e.child));
+    return `<div class="tcard ${done?"done":"pending"}">
+      <div class="tc-top"><div class="tc-time">${fmt12(e.timeH,e.timeM)}</div><div class="tc-status ${done?"s-done":"s-pend"}">${done?"✅ منجزة":"⏳ قيد الانتظار"}</div></div>
+      <div class="tc-body"><div class="tc-emoji">${emoji}</div><div><div class="tc-name">${esc(name)}</div><div class="tc-meta">👤 ${esc(e.child||"—")} · ⏱️ 30 دقيقة</div></div></div>
+      ${e.rating!==null?`<div class="tc-rating">${"⭐".repeat(e.rating)} (${e.rating}/5)${e.note?` <span class="tc-note">· ${esc(e.note)}</span>`:""}</div>`:""}
+      <div class="tc-actions">
+        ${canDone?`<button class="btn btn-green" onclick="markDone('${e.id}',${selDay})">✅ إنهاء</button>`:""}
+        ${CU.role==="admin"?`<button class="btn btn-gold" onclick="openRating('${e.id}',${selDay})">⭐ تقييم</button>`:""}
+      </div></div>`;
+  }).join("");
+}
+window.markDone=async(id,d)=>{
+  const u={...schedule};u[d]=(schedule[d]||[]).map(e=>e.id===id?{...e,status:"done",doneAt:new Date().toISOString()}:e);
+  await saveSched(u);toast("✅ تم تسجيل إنهاء المهمة!");
+};
+window.regenDay=async d=>{
+  if(!CHILDREN.length){toast("أضف أطفالاً أولاً من صفحة المستخدمين","warn");return;}
+  await saveSched({...schedule,[d]:genDay(d)});toast("🔄 تم تجديد الجدول!");
+};
+
+// ── RATING ──
+let rVal=3;
+window.openRating=(id,d)=>{
+  const e=(schedule[d]||[]).find(x=>x.id===id)||{};
+  ratingCtx={id,d};rVal=e.rating||3;
+  $("mr-sub").textContent=`${taskById(e.taskId).lbl} · ${e.child||""}`;
+  $("mr-note").value=e.note||"";
+  renderStars();openM("m-rate");
+};
+function renderStars(){
+  $("stars-row").innerHTML=[1,2,3,4,5].map(s=>`<button class="star-btn" style="color:${s<=rVal?"var(--gold)":"#374151"}" onclick="setRV(${s})">★</button>`).join("");
+  $("stars-lbl").textContent=`${rVal} / 5`;
+}
+window.setRV=s=>{rVal=s;renderStars();};
+$("mr-save").onclick=async()=>{
+  if(!ratingCtx) return;
+  const u={...schedule};u[ratingCtx.d]=(schedule[ratingCtx.d]||[]).map(e=>e.id===ratingCtx.id?{...e,rating:rVal,note:$("mr-note").value}:e);
+  await saveSched(u);closeM("m-rate");toast("⭐ تم حفظ التقييم!");
+};
+
+// ── EXTRA TASK ──
+window.openExtraM=d=>{
+  extraCtx=d;$("me-sub").textContent=`ليوم ${DAYS[d]}`;
+  $("me-child").innerHTML=CHILDREN.map(c=>`<option value="${c}">${c}</option>`).join("");
+  $("me-lbl").value="";openM("m-extra");
+};
+$("me-save").onclick=async()=>{
+  const lbl=$("me-lbl").value.trim();
+  if(!lbl){toast("اكتب وصف المهمة","warn");return;}
+  const u={...schedule};u[extraCtx]=(schedule[extraCtx]||[]).map(e=>e.taskId==="extra"?{...e,child:$("me-child").value,extraLabel:lbl,status:"pending"}:e);
+  await saveSched(u);closeM("m-extra");toast("📌 تم تحديد المهمة الإضافية!");
+};
+
+// ── USERS ──
+function renderUsers(){
+  if(CU?.role!=="admin") return;
+  $("users-list").innerHTML=USERS.length===0?`<div class="empty">لا يوجد مستخدمون</div>`:
+    USERS.map(u=>`
+      <div class="user-row">
+        <div class="user-row-l">
+          <div class="ur-av">${u.avatar||"👤"}</div>
+          <div><div class="ur-name">${esc(u.name)}</div><div class="ur-sub">${esc(u.username)}${u.childName?` · ${esc(u.childName)}`:""}</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="h-badge ${u.role==="admin"?"badge-admin":"badge-child"}">${u.role==="admin"?"مدير":"طفل"}</div>
+          <button class="btn btn-blue" onclick="openEditUser('${u.username}')">✏️</button>
+          ${u.username!==CU.username?`<button class="btn btn-red" onclick="delUser('${u.username}')">🗑️</button>`:""}
+        </div>
+      </div>`).join("");
+}
+
+window.openAddUser=()=>{
+  editingUser=null;
+  $("mu-title").textContent="➕ إضافة مستخدم";
+  ["mu-name","mu-user","mu-child","mu-av","mu-pw","mu-pw2"].forEach(id=>$(id).value="");
+  $("mu-av").value="👧";$("mu-role").value="child";
+  $("mu-err").style.display="none";
+  $("mu-pf").style.display="flex";$("mu-p2f").style.display="none";$("mu-cf").style.display="flex";
+  openM("m-user");
+};
+window.openEditUser=u=>{
+  editingUser=u;
+  const data=USERS.find(x=>x.username===u); if(!data) return;
+  $("mu-title").textContent="✏️ تعديل مستخدم";
+  $("mu-name").value=data.name;$("mu-user").value=data.username;
+  $("mu-role").value=data.role;$("mu-child").value=data.childName||"";
+  $("mu-av").value=data.avatar||"👤";$("mu-pw").value="";$("mu-pw2").value="";
+  $("mu-err").style.display="none";
+  $("mu-pf").style.display="none";$("mu-p2f").style.display="flex";$("mu-cf").style.display=data.role==="child"?"flex":"none";
+  openM("m-user");
+};
+window.toggleChildField=()=>$("mu-cf").style.display=$("mu-role").value==="child"?"flex":"none";
+
+$("mu-save").onclick=async()=>{
+  const name=$("mu-name").value.trim(),username=$("mu-user").value.trim().toLowerCase();
+  const role=$("mu-role").value,childName=$("mu-child").value.trim();
+  const avatar=$("mu-av").value.trim()||"👤";
+  const pw=$("mu-pw").value,pw2=$("mu-pw2").value;
+  const err=$("mu-err"); err.style.display="none";
+  if(!name||!username){err.textContent="الاسم واسم المستخدم مطلوبان";err.style.display="block";return;}
+  try{
+    if(editingUser){
+      const existing=(await getDoc(doc(db,"users",editingUser))).data();
+      const data={...existing,name,role,avatar};
+      if(role==="child") data.childName=childName; else delete data.childName;
+      if(pw2&&pw2.length>=6) data.hash=await hashPw(pw2);
+      else if(pw2&&pw2.length>0){err.textContent="كلمة المرور 6 أحرف على الأقل";err.style.display="block";return;}
+      await setDoc(doc(db,"users",editingUser),data);
+    } else {
+      if(pw.length<6){err.textContent="كلمة المرور 6 أحرف على الأقل";err.style.display="block";return;}
+      if((await getDoc(doc(db,"users",username))).exists()){err.textContent="اسم المستخدم مستخدم بالفعل";err.style.display="block";return;}
+      const data={username,name,role,avatar,hash:await hashPw(pw)};
+      if(role==="child") data.childName=childName;
+      await setDoc(doc(db,"users",username),data);
+    }
+    await loadUsers();renderUsers();closeM("m-user");
+    toast(editingUser?"✅ تم تعديل المستخدم!":"✅ تم إضافة المستخدم!");
+  }catch(e){err.textContent="خطأ: "+e.message;err.style.display="block";}
+};
+window.delUser=async u=>{
+  if(!confirm(`هل تريد حذف المستخدم "${u}"؟`)) return;
+  await deleteDoc(doc(db,"users",u));
+  await loadUsers();renderUsers();toast("🗑️ تم حذف المستخدم!");
+};
+
+// ── PASSWORD ──
+$("btn-pw").onclick=()=>openM("m-pw");
+$("s-pbtn").onclick=()=>$("btn-pw").click();
+$("mpw-save").onclick=async()=>{
+  const p1=$("mpw1").value,p2=$("mpw2").value,err=$("mpw-err");err.style.display="none";
+  if(p1.length<6){err.textContent="6 أحرف على الأقل";err.style.display="block";return;}
+  if(p1!==p2){err.textContent="كلمتا المرور غير متطابقتين";err.style.display="block";return;}
+  const existing=(await getDoc(doc(db,"users",CU.username))).data();
+  await setDoc(doc(db,"users",CU.username),{...existing,hash:await hashPw(p1)});
+  $("mpw1").value="";$("mpw2").value="";closeM("m-pw");toast("🔑 تم تغيير كلمة المرور!");
+};
+
+// ── REPORT ──
+function renderReport(){
+  if(CU?.role!=="admin") return;
+  const entries=schedule[rptDay]||[];
+  $("rpt-grid").innerHTML=CHILDREN.map(child=>{
+    const ce=entries.filter(e=>e.child===child);
+    const done=ce.filter(e=>e.status==="done").length;
+    const ratings=ce.filter(e=>e.rating!==null).map(e=>e.rating);
+    const avg=ratings.length?(ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(1):"—";
+    const pct=ce.length?Math.round(done/ce.length*100):0;
+    return `<div class="rpt-card">
+      <div class="rpt-child">${esc(child)}</div>
+      <div class="rpt-stats">
+        <div class="rpt-stat"><div class="rpt-n" style="color:var(--green)">${done}</div><div class="rpt-l">منجزة</div></div>
+        <div class="rpt-stat"><div class="rpt-n" style="color:var(--gold)">${ce.length}</div><div class="rpt-l">المجموع</div></div>
+        <div class="rpt-stat"><div class="rpt-n" style="color:var(--purple)">${avg}</div><div class="rpt-l">التقييم</div></div>
+      </div>
+      <div class="prog-track" style="margin-bottom:4px"><div class="prog-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--purple),#6d28d9)"></div></div>
+      <div style="font-size:11px;color:var(--purple)">${pct}%</div></div>`;
+  }).join("")||`<div class="empty">أضف أطفالاً أولاً</div>`;
+
+  const allD=Object.keys(schedule).map(Number);
+  $("wtbl").innerHTML=`
+    <div class="w-head"><div class="wc0">الاسم</div>${DAYS.map(d=>`<div class="wc">${d}</div>`).join("")}<div class="wc">المجموع</div></div>
+    ${CHILDREN.map(child=>{
+      const cols=DAYS.map((_,i)=>{
+        const ce=(schedule[i]||[]).filter(e=>e.child===child);
+        const d=ce.filter(e=>e.status==="done").length;
+        return `<div class="wc" style="color:${ce.length===0?"var(--muted)":d===0?"var(--red)":"var(--green)"}">${d}/${ce.length}</div>`;
+      }).join("");
+      const td=allD.reduce((a,i)=>a+(schedule[i]||[]).filter(e=>e.child===child&&e.status==="done").length,0);
+      const tt=allD.reduce((a,i)=>a+(schedule[i]||[]).filter(e=>e.child===child).length,0);
+      return `<div class="w-row"><div class="wc0">${esc(child)}</div>${cols}<div class="wc" style="color:var(--purple);font-weight:800">${td}/${tt}</div></div>`;
+    }).join("")}`;
+}
+</script>
+</body>
+</html>
