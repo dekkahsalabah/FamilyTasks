@@ -158,6 +158,28 @@ textarea.inp{resize:vertical;min-height:68px}
 .divider{border:none;border-top:1px solid var(--border);margin:4px 0}
 .warn-box{background:rgba(245,200,66,.07);border:1px solid rgba(245,200,66,.2);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--gold);line-height:1.7}
 @media(max-width:480px){.hdr-title{font-size:14px}.auth-card{padding:26px 18px}}
+
+/* ── PRINT ── */
+@media print{
+  body{background:#fff!important;color:#000!important;font-family:'Tajawal',Arial,sans-serif}
+  .hdr,.nav,.month-picker,.rpt-tabs,.no-print,#loading,#toast{display:none!important}
+  .page{display:block!important;max-width:100%;padding:0;margin:0}
+  #page-home,#page-users,#page-settings,#setup-page,#login-page{display:none!important}
+  #page-report{display:block!important}
+  .rank-card{background:#f9f9f9!important;border:1px solid #ddd!important;break-inside:avoid;margin-bottom:10px}
+  .rank-card.rank-1{background:#fffbe6!important;border-color:#f5c842!important}
+  .rank-card.rank-2{background:#f9f9f9!important;border-color:#aaa!important}
+  .rank-card.rank-3{background:#fff5ee!important;border-color:#cd7f32!important}
+  .child-rpt{background:#f9f9f9!important;border:1px solid #ddd!important;break-inside:avoid;margin-bottom:12px}
+  .child-rpt-body{display:block!important}
+  .rank-bar,.prog-track{background:#eee!important}
+  .rank-bar-fill,.prog-fill{background:#333!important}
+  .warn-box{background:#fffbe6!important;border-color:#f5c842!important;color:#7a5900!important}
+  :root{--green:#1a7a3c;--gold:#8a6a00;--red:#c00;--purple:#5a2d9e;--blue:#1a56a0;--text:#000;--text2:#444;--muted:#888}
+  .print-header{display:block!important}
+  .pg-title,.pg-date,.sec-title{color:#000!important}
+  .rpt-cal-info{color:#555!important}
+}
 </style>
 </head>
 <body>
@@ -231,10 +253,20 @@ textarea.inp{resize:vertical;min-height:68px}
 
   <!-- REPORT -->
   <div class="page" id="page-report">
-    <div class="pg-title">📊 تقارير الأداء</div>
+    <!-- يظهر عند الطباعة فقط -->
+    <div id="print-hdr" style="display:none;text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #c8920a">
+      <div style="font-size:26px">🏠</div>
+      <div style="font-size:20px;font-weight:900">تقرير مهام البيت</div>
+      <div id="print-month-lbl" style="font-size:14px;margin-top:4px"></div>
+      <div id="print-date-lbl" style="font-size:11px;color:#777;margin-top:2px"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px">
+      <div class="pg-title">📊 تقارير الأداء</div>
+      <button class="btn btn-blue no-print" onclick="printReport()" style="padding:9px 16px;font-size:13px">🖨️ طباعة</button>
+    </div>
     <div id="rpt-cal-info" class="pg-date"></div>
-    <div class="month-picker" id="month-picker"></div>
-    <div class="rpt-tabs">
+    <div class="month-picker no-print" id="month-picker"></div>
+    <div class="rpt-tabs no-print">
       <button class="rtab active" onclick="setRptTab('ranking')">🏆 الترتيب</button>
       <button class="rtab" onclick="setRptTab('individual')">👤 تقارير فردية</button>
     </div>
@@ -1006,6 +1038,25 @@ $("mu-save").onclick=async()=>{
 window.delUser=async u=>{
   if(!confirm(`حذف "${u}"؟`)) return;
   await deleteDoc(doc(db,"users",u));await loadUsers();renderUsers();toast("🗑️ تم الحذف!");
+};
+
+// ── PRINT ──
+window.printReport=async()=>{
+  $('rpt-ranking').style.display='block';
+  $('rpt-individual').style.display='block';
+  document.querySelectorAll('.child-rpt-body').forEach(el=>el.classList.add('open'));
+  const now=new Date();
+  $('print-hdr').style.display='block';
+  $('print-month-lbl').textContent=MONTHS_AR[rptMonth]+' '+rptYear+'م';
+  $('print-date-lbl').textContent='طُبع في: '+formatMiladi(now)+' — '+formatHijri(now);
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{
+      $('print-hdr').style.display='none';
+      $('rpt-ranking').style.display=rptTab==='ranking'?'block':'none';
+      $('rpt-individual').style.display=rptTab==='individual'?'block':'none';
+    },1500);
+  },300);
 };
 
 // ── PASSWORD ──
