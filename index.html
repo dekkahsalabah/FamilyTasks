@@ -161,24 +161,42 @@ textarea.inp{resize:vertical;min-height:68px}
 
 /* ── PRINT ── */
 @media print{
-  body{background:#fff!important;color:#000!important;font-family:'Tajawal',Arial,sans-serif}
-  .hdr,.nav,.month-picker,.rpt-tabs,.no-print,#loading,#toast{display:none!important}
-  .page{display:block!important;max-width:100%;padding:0;margin:0}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important;color:#111!important;font-family:'Tajawal',Arial,sans-serif;font-size:13px}
+  .hdr,.nav,.month-picker,.rpt-tabs,.no-print,#loading,#toast,#app>.nav{display:none!important}
+  .page{display:none!important}
+  #page-report{display:block!important;max-width:100%!important;padding:10px!important;margin:0!important}
   #page-home,#page-users,#page-settings,#setup-page,#login-page{display:none!important}
-  #page-report{display:block!important}
-  .rank-card{background:#f9f9f9!important;border:1px solid #ddd!important;break-inside:avoid;margin-bottom:10px}
-  .rank-card.rank-1{background:#fffbe6!important;border-color:#f5c842!important}
-  .rank-card.rank-2{background:#f9f9f9!important;border-color:#aaa!important}
+  #print-hdr{display:block!important;border-bottom:2px solid #c8920a!important}
+  .pg-title{display:none!important}
+  .pg-date{font-size:12px;color:#555!important;margin-bottom:8px}
+  /* Ranking cards */
+  .rank-list{display:flex!important;flex-direction:column!important;gap:8px!important}
+  .rank-card{background:#f8f8f8!important;border:1px solid #ccc!important;border-radius:8px!important;padding:10px 12px!important;break-inside:avoid;margin-bottom:6px;display:flex!important;gap:10px!important;align-items:flex-start!important}
+  .rank-card.rank-1{background:#fffbe6!important;border-color:#c8920a!important}
+  .rank-card.rank-2{background:#f5f5f5!important;border-color:#999!important}
   .rank-card.rank-3{background:#fff5ee!important;border-color:#cd7f32!important}
-  .child-rpt{background:#f9f9f9!important;border:1px solid #ddd!important;break-inside:avoid;margin-bottom:12px}
+  .rank-medal{font-size:22px!important;min-width:30px!important}
+  .rank-name{font-size:15px!important;font-weight:900!important;color:#111!important}
+  .rank-sub{color:#555!important;font-size:11px!important}
+  .rank-stat-n{font-size:15px!important;font-weight:900!important}
+  .rank-stat-l{font-size:10px!important;color:#666!important}
+  .rank-bar{height:5px!important;background:#e0e0e0!important;border-radius:3px!important}
+  .rank-bar-fill{background:#333!important}
+  .warn-box{background:#fffbe6!important;border:1px solid #c8920a!important;color:#7a4f00!important;font-size:11px!important;padding:8px!important}
+  /* Individual reports */
+  .child-rpt{background:#f8f8f8!important;border:1px solid #ccc!important;border-radius:8px!important;padding:10px!important;break-inside:avoid;margin-bottom:10px!important;page-break-inside:avoid}
   .child-rpt-body{display:block!important}
-  .rank-bar,.prog-track{background:#eee!important}
-  .rank-bar-fill,.prog-fill{background:#333!important}
-  .warn-box{background:#fffbe6!important;border-color:#f5c842!important;color:#7a5900!important}
-  :root{--green:#1a7a3c;--gold:#8a6a00;--red:#c00;--purple:#5a2d9e;--blue:#1a56a0;--text:#000;--text2:#444;--muted:#888}
-  .print-header{display:block!important}
-  .pg-title,.pg-date,.sec-title{color:#000!important}
-  .rpt-cal-info{color:#555!important}
+  .child-rpt-hdr{border-bottom:1px solid #ddd!important;padding-bottom:8px!important;margin-bottom:8px!important}
+  .child-rpt-av{font-size:20px!important}
+  .child-rpt-name{font-size:14px!important;font-weight:900!important;color:#111!important}
+  .day-detail-row{padding:5px 0!important;border-bottom:1px solid #eee!important;font-size:11px!important}
+  .ddr-date{color:#555!important;min-width:90px!important}
+  .sec-title{color:#333!important;border-bottom:1px solid #ddd;padding-bottom:4px;margin-bottom:8px}
+  .rpt-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
+  .rpt-card{background:#f8f8f8!important;border:1px solid #ccc!important;break-inside:avoid}
+  .rpt-n{font-size:16px!important;font-weight:900!important}
+  .prog-track{background:#e0e0e0!important}.prog-fill{background:#555!important}
 }
 </style>
 </head>
@@ -607,28 +625,37 @@ function buildHomeCalBar(){
 
 window.prevWeek=()=>{
   const d=new Date(weekStart);d.setDate(d.getDate()-7);
-  weekStart=d;buildHomeCalBar();buildDaysBar();renderAdminTools();listenToWeek(weekStart);
+  weekStart=d;selDateKey=dateKey(weekStart);
+  buildHomeCalBar();buildDaysBar();renderAdminTools();listenToWeek(weekStart);
 };
 window.nextWeek=()=>{
   const d=new Date(weekStart);d.setDate(d.getDate()+7);
-  weekStart=d;buildHomeCalBar();buildDaysBar();renderAdminTools();listenToWeek(weekStart);
+  weekStart=d;selDateKey=dateKey(weekStart);
+  buildHomeCalBar();buildDaysBar();renderAdminTools();listenToWeek(weekStart);
 };
 
 // ── DAYS BAR ──
 function buildDaysBar(){
   const today=dateKey(new Date());
-  let html="";
+  const bar=$("days-bar");
+  bar.innerHTML="";
   for(let i=0;i<7;i++){
     const d=new Date(weekStart);d.setDate(d.getDate()+i);
     const dk=dateKey(d);
     const isToday=dk===today,isActive=dk===selDateKey;
-    html+=`<button class="dbtn${isActive?" active":""}${isToday?" today-mark":""}" onclick="selDateKey='${dk}';buildDaysBar();renderAdminTools();renderHome()">
-      <div class="dbtn-day">${DAYS_AR[d.getDay()]}</div>
-      <div class="dbtn-date">${d.getDate()}</div>
-      <div class="dbtn-hijri">${toHijri(d).day}/${toHijri(d).month}</div>
-    </button>`;
+    const btn=document.createElement("button");
+    btn.className="dbtn"+(isActive?" active":"")+(isToday?" today-mark":"");
+    btn.innerHTML=`<div class="dbtn-day">${DAYS_AR[d.getDay()]}</div><div class="dbtn-date">${d.getDate()}</div><div class="dbtn-hijri">${toHijri(d).day}/${toHijri(d).month}</div>`;
+    (function(key){
+      btn.addEventListener("click",function(){
+        selDateKey=key;
+        buildDaysBar();
+        renderAdminTools();
+        renderHome();
+      });
+    })(dk);
+    bar.appendChild(btn);
   }
-  $("days-bar").innerHTML=html;
 }
 
 // ── SCHEDULE LISTENER ──
@@ -688,7 +715,7 @@ function renderAdminTools(){
 window.regenDay=async()=>{
   if(!CHILDREN.length){toast("أضف أطفالاً أولاً","warn");return;}
   scheduleByDate[selDateKey]=genDay(selDateKey);
-  await saveWeek(weekStart);toast("🔄 تم تجديد الجدول!");
+  await saveWeek(getWeekStart(new Date(selDateKey)));toast("🔄 تم تجديد الجدول!");
 };
 
 // ── HOME RENDER ──
@@ -735,7 +762,7 @@ function renderHome(){
 // ── MARK DONE ──
 window.markDone=async id=>{
   scheduleByDate[selDateKey]=(scheduleByDate[selDateKey]||[]).map(e=>e.id===id?{...e,status:"done",doneAt:new Date().toISOString()}:e);
-  await saveWeek(weekStart);toast("✅ تم تسجيل إنهاء المهمة!");
+  await saveWeek(getWeekStart(new Date(selDateKey)));toast("✅ تم تسجيل إنهاء المهمة!");
 };
 
 // ── EDIT ENTRY ──
@@ -784,7 +811,7 @@ $("mr-save").onclick=async()=>{
   if(!ratingCtx) return;
   const note=$("mr-note").value;
   scheduleByDate[selDateKey]=(scheduleByDate[selDateKey]||[]).map(e=>e.id===ratingCtx.id?{...e,rating:rVal,note}:e);
-  await saveWeek(weekStart);closeM("m-rate");toast("⭐ تم حفظ التقييم!");
+  await saveWeek(getWeekStart(new Date(selDateKey)));closeM("m-rate");toast("⭐ تم حفظ التقييم!");
 };
 
 // ── EXTRA TASK ──
@@ -798,7 +825,7 @@ $("mex-save").onclick=async()=>{
   if(!lbl){toast("اكتب وصف المهمة","warn");return;}
   scheduleByDate[selDateKey]=(scheduleByDate[selDateKey]||[]).map(e=>
     e.taskId==="extra"?{...e,child:$("mex-child").value,extraLabel:lbl,status:"pending"}:e);
-  await saveWeek(weekStart);closeM("m-extra");toast("📌 تم تحديد المهمة الإضافية!");
+  await saveWeek(getWeekStart(new Date(selDateKey)));closeM("m-extra");toast("📌 تم تحديد المهمة الإضافية!");
 };
 
 // ── REPORT ──
